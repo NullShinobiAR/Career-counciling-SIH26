@@ -1,0 +1,365 @@
+```python
+import streamlit as st
+import pandas as pd
+
+# -------------------------------------------------
+# PAGE CONFIGURATION
+# -------------------------------------------------
+
+st.set_page_config(
+    page_title="AI Career Counselling",
+    page_icon="🎓",
+    layout="wide"
+)
+
+st.title("🎓 AI-Enabled Career Counselling")
+st.subheader("Family Decision-Support Platform for Vocational Education")
+
+st.write(
+    "Find suitable vocational career pathways based on your "
+    "interests, skills, education and preferences."
+)
+
+# -------------------------------------------------
+# CAREER DATABASE
+# -------------------------------------------------
+
+careers = [
+    {
+        "career": "Electronics Technician",
+        "interest": ["Electronics", "Technology"],
+        "education": ["10th", "12th", "Diploma"],
+        "skills": ["Electronics", "Electrical"],
+        "budget": ["Low", "Medium"],
+        "course": "Diploma / ITI in Electronics",
+        "jobs": "Electronics Technician, Service Technician",
+        "reason": "Suitable for students interested in electronics and practical technical work."
+    },
+
+    {
+        "career": "Embedded Systems Technician",
+        "interest": ["Electronics", "Technology", "Programming"],
+        "education": ["12th", "Diploma", "Degree"],
+        "skills": ["Electronics", "Programming"],
+        "budget": ["Medium", "High"],
+        "course": "Embedded Systems / IoT Training",
+        "jobs": "Embedded Technician, IoT Technician",
+        "reason": "Good pathway for students interested in electronics combined with programming."
+    },
+
+    {
+        "career": "Industrial Automation Technician",
+        "interest": ["Electronics", "Technology", "Machines"],
+        "education": ["10th", "12th", "Diploma"],
+        "skills": ["Electrical", "Electronics", "Machines"],
+        "budget": ["Medium", "High"],
+        "course": "PLC / Industrial Automation",
+        "jobs": "Automation Technician, PLC Technician",
+        "reason": "Suitable for students interested in machines, control systems and industrial technology."
+    },
+
+    {
+        "career": "Web Developer",
+        "interest": ["Programming", "Technology"],
+        "education": ["12th", "Diploma", "Degree"],
+        "skills": ["Programming"],
+        "budget": ["Low", "Medium"],
+        "course": "Web Development / Software Training",
+        "jobs": "Web Developer, Front-End Developer",
+        "reason": "Suitable for students interested in computers, programming and website development."
+    },
+
+    {
+        "career": "Electrical Technician",
+        "interest": ["Electrical", "Machines"],
+        "education": ["10th", "12th", "Diploma"],
+        "skills": ["Electrical"],
+        "budget": ["Low", "Medium"],
+        "course": "ITI Electrical / Diploma Electrical",
+        "jobs": "Electrical Technician, Maintenance Technician",
+        "reason": "Suitable for students interested in electrical systems and hands-on technical work."
+    },
+
+    {
+        "career": "Automobile Technician",
+        "interest": ["Automobile", "Machines"],
+        "education": ["10th", "12th", "Diploma"],
+        "skills": ["Mechanical", "Machines"],
+        "budget": ["Low", "Medium"],
+        "course": "ITI Automobile / Automobile Diploma",
+        "jobs": "Automobile Technician, Service Technician",
+        "reason": "Good choice for students interested in vehicles, machines and practical work."
+    },
+
+    {
+        "career": "Healthcare Technician",
+        "interest": ["Healthcare", "Science"],
+        "education": ["12th", "Diploma"],
+        "skills": ["Science"],
+        "budget": ["Medium", "High"],
+        "course": "Medical Laboratory / Healthcare Technician Training",
+        "jobs": "Lab Technician, Healthcare Assistant",
+        "reason": "Suitable for students interested in healthcare and science-related practical work."
+    }
+]
+
+# -------------------------------------------------
+# SIDEBAR
+# -------------------------------------------------
+
+st.sidebar.header("👤 Student Profile")
+
+name = st.sidebar.text_input("Student Name")
+
+education = st.sidebar.selectbox(
+    "Education Level",
+    ["10th", "12th", "Diploma", "Degree"]
+)
+
+interest = st.sidebar.selectbox(
+    "Main Interest",
+    [
+        "Electronics",
+        "Technology",
+        "Programming",
+        "Electrical",
+        "Machines",
+        "Automobile",
+        "Healthcare",
+        "Science"
+    ]
+)
+
+skill = st.sidebar.selectbox(
+    "Current Skill",
+    [
+        "Electronics",
+        "Programming",
+        "Electrical",
+        "Mechanical",
+        "Machines",
+        "Science"
+    ]
+)
+
+budget = st.sidebar.selectbox(
+    "Training Budget",
+    ["Low", "Medium", "High"]
+)
+
+location = st.sidebar.text_input(
+    "Preferred Location",
+    "Tamil Nadu"
+)
+
+parent_concern = st.sidebar.selectbox(
+    "Main Family Concern",
+    [
+        "Job Opportunities",
+        "Course Cost",
+        "Course Duration",
+        "Career Stability",
+        "Future Growth"
+    ]
+)
+
+# -------------------------------------------------
+# RECOMMENDATION FUNCTION
+# -------------------------------------------------
+
+def recommend_careers():
+
+    results = []
+
+    for career in careers:
+
+        score = 0
+        reasons = []
+
+        # Interest matching
+        if interest in career["interest"]:
+            score += 40
+            reasons.append("Matches your interest")
+
+        # Education matching
+        if education in career["education"]:
+            score += 20
+            reasons.append("Matches your education level")
+
+        # Skill matching
+        if skill in career["skills"]:
+            score += 20
+            reasons.append("Matches your existing skill")
+
+        # Budget matching
+        if budget in career["budget"]:
+            score += 10
+            reasons.append("Fits your training budget")
+
+        # Location
+        if location.strip():
+            score += 10
+
+        results.append({
+            "Career": career["career"],
+            "Score": score,
+            "Course": career["course"],
+            "Jobs": career["jobs"],
+            "Reason": career["reason"],
+            "Match Details": ", ".join(reasons)
+        })
+
+    results = sorted(
+        results,
+        key=lambda x: x["Score"],
+        reverse=True
+    )
+
+    return results
+
+
+# -------------------------------------------------
+# MAIN BUTTON
+# -------------------------------------------------
+
+if st.button("🔍 Find My Career Path", use_container_width=True):
+
+    if not name:
+        name = "Student"
+
+    results = recommend_careers()
+
+    st.success(
+        f"Hello {name}! Here are your personalized career pathways."
+    )
+
+    st.header("🎯 Recommended Career Pathways")
+
+    # Show top 3 recommendations
+    for i, result in enumerate(results[:3]):
+
+        st.subheader(
+            f"{i + 1}. {result['Career']} — {result['Score']}% Match"
+        )
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.write("**Recommended Course:**")
+            st.write(result["Course"])
+
+            st.write("**Possible Jobs:**")
+            st.write(result["Jobs"])
+
+        with col2:
+            st.write("**Why this career?**")
+            st.write(result["Reason"])
+
+            st.write("**Matching Factors:**")
+            st.write(result["Match Details"])
+
+        st.divider()
+
+    # -------------------------------------------------
+    # SKILL GAP
+    # -------------------------------------------------
+
+    st.header("📊 Skill Gap Analysis")
+
+    top_career = results[0]["Career"]
+
+    skill_map = {
+        "Electronics Technician":
+            ["Basic Electronics", "Digital Electronics", "Circuit Testing"],
+
+        "Embedded Systems Technician":
+            ["C Programming", "Microcontrollers", "Arduino", "IoT"],
+
+        "Industrial Automation Technician":
+            ["PLC", "Sensors", "Industrial Control"],
+
+        "Web Developer":
+            ["HTML", "CSS", "JavaScript", "Programming"],
+
+        "Electrical Technician":
+            ["Electrical Wiring", "Circuit Testing", "Electrical Safety"],
+
+        "Automobile Technician":
+            ["Vehicle Maintenance", "Engine Basics", "Diagnostics"],
+
+        "Healthcare Technician":
+            ["Basic Healthcare", "Laboratory Skills", "Medical Safety"]
+    }
+
+    required_skills = skill_map.get(top_career, [])
+
+    st.write(
+        f"Skills required for **{top_career}**:"
+    )
+
+    for required in required_skills:
+        if required.lower() in skill.lower():
+            st.success(f"✅ {required}")
+        else:
+            st.warning(f"📚 Learn: {required}")
+
+    # -------------------------------------------------
+    # FAMILY DECISION SUPPORT
+    # -------------------------------------------------
+
+    st.header("👨‍👩‍👧 Family Decision Support")
+
+    st.write(
+        f"Your main family concern is **{parent_concern}**."
+    )
+
+    if parent_concern == "Job Opportunities":
+        st.info(
+            "The recommended pathway is connected to practical "
+            "technical occupations and employment-oriented skills."
+        )
+
+    elif parent_concern == "Course Cost":
+        st.info(
+            "Consider government ITIs, skill-development centres "
+            "and affordable vocational training programmes."
+        )
+
+    elif parent_concern == "Course Duration":
+        st.info(
+            "Vocational pathways can provide shorter, "
+            "skill-focused training compared with many degree pathways."
+        )
+
+    elif parent_concern == "Career Stability":
+        st.info(
+            "Compare industry demand, required skills and "
+            "long-term career progression before making a decision."
+        )
+
+    else:
+        st.info(
+            "Choose a pathway that provides opportunities for "
+            "continuous skill development and career progression."
+        )
+
+    # -------------------------------------------------
+    # FINAL EXPLANATION
+    # -------------------------------------------------
+
+    st.header("💡 AI Recommendation Explanation")
+
+    st.write(
+        f"Based on your **{interest} interest**, "
+        f"**{education} education**, current skill in "
+        f"**{skill}**, and **{budget} training budget**, "
+        f"the system recommends **{top_career}** as your "
+        f"top career pathway."
+    )
+
+    st.caption(
+        "⚠️ This platform provides career guidance and decision "
+        "support. It should not replace professional counselling "
+        "or official admission and employment information."
+    )
+```
